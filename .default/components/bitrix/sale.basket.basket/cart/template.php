@@ -11,6 +11,8 @@
 /** @var string $componentPath */
 /** @var CBitrixBasketComponent $component */
 
+use Bitrix\Sale\DiscountCouponsManager;
+
 /*echo "<pre>";
 print_r($arResult["ITEMS"]["AnDelCanBuy"]);
 echo "</pre>";*/
@@ -161,21 +163,69 @@ $econom = 0;
                     </div>
 
 
-                    <?global $USER;
-                        if ($USER->isAdmin())
-                        {
-                            ?>
-                            <div class="container" style="width: 676px;margin-top: 27px;position: absolute;/* margin-bottom: 20px; */">
-                                <div class="subscribe_txt_block" style="margin-top: 11px;">
-                                    <h6>Введите купон:</h6>
+                    <? global $USER;
+                    if ($USER->isAdmin()) {
+                        if (CModule::IncludeModule("catalog")) {
+                            if ($arParams["HIDE_COUPON"] != "Y") {
+                                ?>
+<!--                                <div class="bx_ordercart_coupon">-->
+<!--                                <span>--><?//= GetMessage("STB_COUPON_PROMT") ?><!--</span><input type="text" id="coupon"-->
+<!--                                                                                         name="COUPON" value=""-->
+<!--                                                                                         onchange="enterCoupon();">&nbsp;<a-->
+<!--                                    class="bx_bt_button bx_big" href="javascript:void(0)" onclick="enterCoupon();"-->
+<!--                                    title="--><?//= GetMessage('SALE_COUPON_APPLY_TITLE'); ?><!--">--><?//= GetMessage('SALE_COUPON_APPLY'); ?><!--</a>-->
+<!--                                </div>-->
+
+                                <div class="container"
+                                     style="width: 676px;margin-top: 27px;position: absolute;/* margin-bottom: 20px; */">
+                                    <div class="subscribe_txt_block" style="margin-top: 11px;">
+                                        <h6>Введите купон:</h6>
+                                    </div>
+
+                                    <form action="" method="POST" class="subscr_form_1" style="float: right;">
+                                        <input type="text" placeholder="Введите код на скидку" id="coupon" name="COUPON"
+                                               value="" onchange="enterCoupon();" required=""
+                                               style="/* font-size: 14px; */padding-left: 20px; width: 427px; line-height: 44px; font-size: 16px; border: none; outline: 1px solid #dfe6e9;">
+                                    </form>
                                 </div>
 
-                                <form action="" method="POST" class="subscr_form_1" style="float: right;">
-                                    <input type="text" placeholder="Введите код на скидку" name="EMAIL" required="" style="/* font-size: 14px; */padding-left: 20px; width: 427px; line-height: 44px; font-size: 16px; border: none; outline: 1px solid #dfe6e9;" >
-                                </form>
-                            </div>
-                            <?
+
+                                <?
+                                if (!empty($arResult['COUPON_LIST'])) {
+                                    foreach ($arResult['COUPON_LIST'] as $oneCoupon) {
+                                        $couponClass = 'disabled';
+                                        switch ($oneCoupon['STATUS']) {
+                                            case DiscountCouponsManager::STATUS_NOT_FOUND:
+                                            case DiscountCouponsManager::STATUS_FREEZE:
+                                                $couponClass = 'bad';
+                                                break;
+                                            case DiscountCouponsManager::STATUS_APPLYED:
+                                                $couponClass = 'good';
+                                                break;
+                                        }
+                                        ?>
+                                        <div class="bx_ordercart_coupon"><input disabled readonly type="text"
+                                                                                name="OLD_COUPON[]"
+                                                                                value="<?= htmlspecialcharsbx($oneCoupon['COUPON']); ?>"
+                                                                                class="<? echo $couponClass; ?>"><span
+                                            class="<? echo $couponClass; ?>"
+                                            data-coupon="<? echo htmlspecialcharsbx($oneCoupon['COUPON']); ?>"></span>
+                                        <div class="bx_ordercart_coupon_notes"><?
+                                            if (isset($oneCoupon['CHECK_CODE_TEXT'])) {
+                                                echo(is_array($oneCoupon['CHECK_CODE_TEXT']) ? implode('<br>', $oneCoupon['CHECK_CODE_TEXT']) : $oneCoupon['CHECK_CODE_TEXT']);
+                                            }
+                                            ?>
+                                        </div>
+                                        </div><?
+                                    }
+                                    unset($couponClass, $oneCoupon);
+                                }
+                            } else {
+                                ?>&nbsp;<?
+                            }
+
                         }
+                    }
                     ?>
 
                 </div>
