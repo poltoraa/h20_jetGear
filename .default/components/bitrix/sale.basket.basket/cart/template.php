@@ -165,6 +165,7 @@ $econom = 0;
 
                     <? global $USER;
                     if ($USER->isAdmin()) {
+                        ?><pre><?print_r($arResult)?></pre><?
                         if (CModule::IncludeModule("catalog")) {
                             if ($arParams["HIDE_COUPON"] != "Y") {
                                 ?>
